@@ -69,71 +69,77 @@ const pages_data = [
   }
 ];
 
+function getPageFromId(id, data = pages_data) {
+  return data.filter(({ pageId }) => pageId === id)[0];
+}
+
 function ComicBook() {
-  const DATA = [...pages_data];
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPageId, setCurrentPageId] = useState(0);
+  const pageData = getPageFromId(currentPageId);
 
   function prevPage() {
-    if (currentPage === 0) {
+    if (currentPageId === 0) {
       return;
     }
 
-    setCurrentPage(currentPage - 1);
+    setCurrentPageId(currentPageId - 1);
   }
 
   function nextPage() {
-    if (currentPage === pages_data.length - 1) {
+    if (currentPageId === pages_data.length - 1) {
       return;
     }
 
-    setCurrentPage(currentPage + 1);
+    setCurrentPageId(currentPageId + 1);
   }
 
   return (
     <article
-      style={{ background: "#000", minWidth: "100vw", minHeight: "100vh" }}
+      style={{
+        background: "#000",
+        minWidth: "100vw",
+        minHeight: "100vh",
+        display: "grid",
+        gridTemplateRows: `${Array(3).map((_) => "1fr")}`
+      }}
     >
       <section>
-        {DATA.filter((page) => page.pageId === currentPage)[0].rows.map(
-          (row) => {
-            return (
-              <div
-                key={row.Id}
-                style={{
-                  padding: 16,
-                  display: "flex",
-                  justifyContent: "stretch"
-                }}
-              >
-                {DATA.filter((page) => page.pageId === currentPage)[0]
-                  .rows.filter((filterRow) => filterRow.rowId === row.rowId)[0]
-                  .panels.map((panel) => {
-                    return (
-                      <div
-                        key={panel.id}
-                        style={{
-                          background: "#fff",
-                          padding: 16,
-                          margin: 8,
-                          flex: 1
-                        }}
-                      >
-                        <p style={{ color: "rgba(0, 0, 0, .5)" }}>
-                          {panel.description}
-                        </p>
-                        {panel.messages &&
-                          panel.messages.map((message, messageId) => (
-                            <div key={{ messageId }}>
-                              {message.character}: {message.text}
-                            </div>
-                          ))}
-                      </div>
-                    );
-                  })}
-              </div>
-            );
-          }
-        )}
+        {pageData.rows.map((row) => {
+          return (
+            <div
+              key={row.Id}
+              style={{
+                padding: 16,
+                display: "flex",
+                justifyContent: "stretch"
+              }}
+            >
+              {row.panels.map((panel) => {
+                return (
+                  <div
+                    key={panel.id}
+                    style={{
+                      background: "#fff",
+                      padding: 16,
+                      margin: 8,
+                      flex: 1
+                    }}
+                  >
+                    <p style={{ color: "rgba(0, 0, 0, .5)" }}>
+                      {panel.description}
+                    </p>
+                    {panel.messages &&
+                      panel.messages.map((message, messageId) => (
+                        <div key={{ messageId }}>
+                          {message.character}: {message.text}
+                        </div>
+                      ))}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </section>
       <footer style={{ padding: 24 }}>
         <button style={{ marginRight: 24 }} onClick={prevPage}>
