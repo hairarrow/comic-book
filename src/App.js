@@ -69,8 +69,24 @@ const pages_data = [
   }
 ];
 
+const getCharacterEmoji = (character) => {
+  switch (character) {
+    case "Ruby":
+      return "🐶";
+    case "Monkey":
+      return "🙈";
+    default:
+      return;
+  }
+};
+
 function getPageFromId(id, data = pages_data) {
   return data.filter(({ pageId }) => pageId === id)[0];
+}
+
+function frPerArrayItem(arr = []) {
+  const { length } = arr;
+  return Array.from({ length }, () => "1fr").join(" ");
 }
 
 function ComicBook() {
@@ -93,6 +109,15 @@ function ComicBook() {
     setCurrentPageId(currentPageId + 1);
   }
 
+  const gridGap = 40;
+
+  const buttonStyles = {
+    height: 56,
+    fontSize: "inherit",
+    fontWeight: "bolder",
+    padding: 16
+  };
+
   return (
     <article
       style={{
@@ -100,52 +125,68 @@ function ComicBook() {
         minWidth: "100vw",
         minHeight: "100vh",
         display: "grid",
-        gridTemplateRows: `${Array(3).map((_) => "1fr")}`
+        gridTemplateRows: "1fr auto"
       }}
     >
-      <section>
-        {pageData.rows.map((row) => {
-          return (
-            <div
-              key={row.Id}
-              style={{
-                padding: 16,
-                display: "flex",
-                justifyContent: "stretch"
-              }}
-            >
-              {row.panels.map((panel) => {
-                return (
-                  <div
-                    key={panel.id}
-                    style={{
-                      background: "#fff",
-                      padding: 16,
-                      margin: 8,
-                      flex: 1
-                    }}
-                  >
-                    <p style={{ color: "rgba(0, 0, 0, .5)" }}>
-                      {panel.description}
-                    </p>
-                    {panel.messages &&
-                      panel.messages.map((message, messageId) => (
-                        <div key={{ messageId }}>
-                          {message.character}: {message.text}
-                        </div>
-                      ))}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
+      <section
+        style={{
+          display: "grid",
+          padding: gridGap,
+          gridTemplateRows: `${frPerArrayItem(pageData.rows)}`,
+          gridGap
+        }}
+      >
+        {pageData.rows.map((row) => (
+          <div
+            key={row.Id}
+            style={{
+              display: "grid",
+              gridTemplateColumns: `${frPerArrayItem(row.panels)}`,
+              gridGap
+            }}
+          >
+            {row.panels.map((panel) => (
+              <div
+                key={panel.id}
+                style={{
+                  background: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  flex: 1,
+                  padding: gridGap,
+                  lineHeight: 1.6
+                }}
+              >
+                <p style={{ color: "rgba(0, 0, 0, .5)" }}>
+                  {panel.description}
+                </p>
+                {panel.messages &&
+                  panel.messages.map((message, messageId) => (
+                    <div key={{ messageId }} style={{ fontSize: 24 }}>
+                      {getCharacterEmoji(message.character)}: {message.text}
+                    </div>
+                  ))}
+              </div>
+            ))}
+          </div>
+        ))}
       </section>
-      <footer style={{ padding: 24 }}>
-        <button style={{ marginRight: 24 }} onClick={prevPage}>
+      <footer
+        style={{
+          paddingBottom: gridGap,
+          paddingRight: gridGap,
+          display: "flex",
+          justifyContent: "flex-end"
+        }}
+      >
+        <button style={{ marginRight: 24, ...buttonStyles }} onClick={prevPage}>
           Previous Page
         </button>
-        <button onClick={nextPage}>Next Page</button>
+        <button style={buttonStyles} onClick={nextPage}>
+          Next Page
+        </button>
       </footer>
     </article>
   );
